@@ -5,12 +5,14 @@ resource "google_service_account" "cloud_run_sa" {
   project      = var.project_id
 }
 
-# Grant Secret Manager Secret Accessor to the Cloud Run Service Account for DB_URL
-resource "google_secret_manager_secret_iam_member" "db_url_accessor" {
-  project   = var.project_id
-  secret_id = google_secret_manager_secret.db_url_secret.secret_id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${google_service_account.cloud_run_sa.email}"
+# Grant Secret Manager Secret Accessor to the Cloud Run Service Account at the project level.
+# This avoids Secret Manager specific granular IAM permission errors (403 setIamPolicy)
+# and automatically grants access to all secrets needed by the backend.
+resource "google_project_iam_member" "secret_accessor_role" {
+  project    = var.project_id
+  role       = "roles/secretmanager.secretAccessor"
+  member     = "serviceAccount:${google_service_account.cloud_run_sa.email}"
+  depends_on = [google_project_service.gcp_services]
 }
 
 # Grant Cloud SQL Client permission to the Cloud Run Service Account
