@@ -1,0 +1,24 @@
+# Local .terraform folder containing downloaded providers
+.terraform/
+
+# Terraform state files (should be stored in GCS remote backend)
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Local variable definitions (can contain custom configurations and secrets)
+*.tfvars
+*.tfvars.json
+
+# Ignore override files
+_override.tf
+_override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
