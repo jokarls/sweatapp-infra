@@ -44,14 +44,12 @@ jobs:
       # -------------------------------------------------------------
       #  GCP Authentication
       # -------------------------------------------------------------
-      - name: Authenticate to Google Cloud (OIDC Preferred)
-        id: auth-oidc
-        continue-on-error: true
+      - name: Authenticate to Google Cloud via OIDC
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_DEPLOY_SA_EMAIL }}
-          project_id: ${{ env.GCP_PROJECT_ID }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
 
 
       # -------------------------------------------------------------
