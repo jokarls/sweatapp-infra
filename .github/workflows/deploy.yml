@@ -32,6 +32,7 @@ jobs:
   terraform:
     name: "Terraform CD"
     runs-on: ubuntu-latest
+    environment: Production
     
     defaults:
       run:
