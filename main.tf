@@ -1,9 +1,10 @@
 terraform {
   required_version = ">= 1.5.0"
 
-  backend "gcs" {
-    prefix = "state/sweatcheck-backend-${var.environment}"
-  }
+  # Remote GCS Backend for Terraform state.
+  # Both 'bucket' and 'prefix' are configured dynamically during 'terraform init' in our CI/CD pipeline
+  # to allow using variables like 'environment' which are not natively permitted here.
+  backend "gcs" {}
 
   required_providers {
     google = {
