@@ -1,12 +1,9 @@
 terraform {
   required_version = ">= 1.5.0"
 
-  # UNCOMMENT and configure this block when setting up remote state management in GCP GCS.
-  # This is CRITICAL for GitHub Actions pipelines so that state is persisted between runs.
-  # backend "gcs" {
-  #   bucket  = "your-terraform-state-bucket-name"
-  #   prefix  = "state/sweatcheck-backend"
-  # }
+  backend "gcs" {
+    prefix = "state/sweatcheck-backend-${var.environment}"
+  }
 
   required_providers {
     google = {

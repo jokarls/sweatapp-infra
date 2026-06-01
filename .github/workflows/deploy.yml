@@ -24,9 +24,9 @@ permissions:
 
 env:
   TF_VERSION: "1.7.0"
-  # Replace these with your actual GCP project ID and region or set them as GitHub variables
-  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  GCP_REGION: "europe-north1"
+  TF_VAR_project_id: ${{ secrets.GCP_PROJECT_ID }}
+  TF_VAR_region: ${{ vars.REGION }}
+  TF_VAR_environment: ${{ vars.ENVIRONMENT }}
 
 jobs:
   terraform:
@@ -76,9 +76,8 @@ jobs:
 
       - name: Terraform Init
         run: |
-          # If you have GCS backend configured, this will initialize it.
-          # If not, it will fall back to local (though a remote backend is highly recommended in CI).
-          terraform init
+          # Initialize GCS backend dynamically using the GITHUB secret
+          terraform init -backend-config="bucket=${{ secrets.GCP_TF_STATE_BUCKET }}"
 
       - name: Terraform Validate
         run: terraform validate
@@ -90,10 +89,9 @@ jobs:
         id: plan
         if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.action == 'plan')
         run: |
-          # Generate variables file dynamically or inject via env
-          terraform plan -var="project_id=${{ env.GCP_PROJECT_ID }}" -no-color -out=tfplan
+          terraform plan -no-color -out=tfplan
         
       - name: Terraform Apply
         if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.action == 'apply')
         run: |
-          terraform apply -var="project_id=${{ env.GCP_PROJECT_ID }}" -auto-approve
+          terraform apply -auto-approve
