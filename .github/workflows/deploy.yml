@@ -43,25 +43,16 @@ jobs:
 
       # -------------------------------------------------------------
       #  GCP Authentication
-      #  We support both modern OIDC (Workload Identity Federation)
-      #  and standard Service Account JSON Key fallbacks.
       # -------------------------------------------------------------
       - name: Authenticate to Google Cloud (OIDC Preferred)
         id: auth-oidc
         continue-on-error: true
         uses: google-github-actions/auth@v2
         with:
-          # If using OIDC (Workload Identity Federation), set these secrets
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_DEPLOY_SA_EMAIL }}
           project_id: ${{ env.GCP_PROJECT_ID }}
 
-      - name: Authenticate to Google Cloud (SA Key Fallback)
-        if: steps.auth-oidc.outcome == 'failure' || !secrets.GCP_WORKLOAD_IDENTITY_PROVIDER
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-          project_id: ${{ env.GCP_PROJECT_ID }}
 
       # -------------------------------------------------------------
       #  Terraform Setup & Validation
