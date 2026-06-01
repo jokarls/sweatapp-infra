@@ -27,23 +27,47 @@ resource "google_cloud_run_domain_mapping" "backend_mapping" {
   depends_on = [google_project_service.gcp_services]
 }
 
-# Dynamically extract and apply DNS records from Cloud Run domain mapping status
-locals {
-  dns_records = var.domain_name != "" ? {
-    for idx, record in try(google_cloud_run_domain_mapping.backend_mapping[0].status[0].resource_records, []) :
-    "${record.type}-${record.name}-${record.rrdata}" => record
-  } : {}
-}
-
-resource "google_dns_record_set" "backend_dns_records" {
-  for_each = local.dns_records
-
+# Static DNS records for the domain mapping.
+# Since Cloud Run custom domains always map to Google's global hosting infrastructure,
+# we can define these statically. This avoids the Terraform plan-time dynamic dependency (catch-22)
+# where 'status' is unknown until after apply, which breaks dynamic 'for_each' keys.
+resource "google_dns_record_set" "root_a" {
+  count        = var.domain_name != "" ? 1 : 0
   project      = var.project_id
   managed_zone = google_dns_managed_zone.dns_zone[0].name
+  name         = "${var.domain_name}."
+  type         = "A"
+  ttl          = 300
+  rrdatas = [
+    "216.239.32.21",
+    "216.239.34.21",
+    "216.239.36.21",
+    "216.239.38.21"
+  ]
+}
 
-  # Standardize root records (@) and subdomains
-  name    = each.value.name == "@" ? "${var.domain_name}." : "${each.value.name}.${var.domain_name}."
-  type    = each.value.type
-  ttl     = 300
-  rrdatas = [each.value.rrdata]
+resource "google_dns_record_set" "root_aaaa" {
+  count        = var.domain_name != "" ? 1 : 0
+  project      = var.project_id
+  managed_zone = google_dns_managed_zone.dns_zone[0].name
+  name         = "${var.domain_name}."
+  type         = "AAAA"
+  ttl          = 300
+  rrdatas = [
+    "2001:4860:4802:32::15",
+    "2001:4860:4802:34::15",
+    "2001:4860:4802:36::15",
+    "2001:4860:4802:38::15"
+  ]
+}
+
+# Also support the 'www' subdomain pointing to Cloud Run by default
+resource "google_dns_record_set" "www_cname" {
+  count        = var.domain_name != "" ? 1 : 0
+  project      = var.project_id
+  managed_zone = google_dns_managed_zone.dns_zone[0].name
+  name         = "www.${var.domain_name}."
+  type         = "CNAME"
+  ttl          = 300
+  rrdatas      = ["ghs.googlehosted.com."]
 }
