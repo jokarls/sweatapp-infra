@@ -9,28 +9,13 @@ resource "google_dns_managed_zone" "dns_zone" {
   depends_on = [google_project_service.gcp_services]
 }
 
-# Cloud Run Custom Domain Mapping
-resource "google_cloud_run_domain_mapping" "backend_mapping" {
-  count    = var.domain_name != "" ? 1 : 0
-  name     = var.domain_name
-  location = var.region
-  project  = var.project_id
-
-  metadata {
-    namespace = var.project_id
-  }
-
-  spec {
-    route_name = google_cloud_run_v2_service.backend_service.name
-  }
-
-  depends_on = [google_project_service.gcp_services]
-}
+# Note: Cloud Run Custom Domain Mapping was created manually in the GCP Console
+# to bypass the Google Search Console Service Account "email does not exist" sync delay/bug.
+# Since it is managed manually, we do not define it in Terraform to prevent 403 authorization errors.
 
 # Static DNS records for the domain mapping.
 # Since Cloud Run custom domains always map to Google's global hosting infrastructure,
-# we can define these statically. This avoids the Terraform plan-time dynamic dependency (catch-22)
-# where 'status' is unknown until after apply, which breaks dynamic 'for_each' keys.
+# we can define these statically. This avoids any dynamic API dependencies during plan.
 resource "google_dns_record_set" "root_a" {
   count        = var.domain_name != "" ? 1 : 0
   project      = var.project_id
