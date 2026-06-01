@@ -32,3 +32,10 @@ variable "app_image" {
   type        = string
   default     = "gcr.io/cloudrun/hello"
 }
+
+variable "domain_name" {
+  description = "The custom subdomain for this project (e.g. sweatapp.min-doman.se). If left empty, no custom DNS mapping is created."
+  type        = string
+  default     = ""
+}
+

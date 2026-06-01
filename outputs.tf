@@ -17,3 +17,9 @@ output "cloud_run_service_account_email" {
   description = "The email of the Service Account running the backend Cloud Run service."
   value       = google_service_account.cloud_run_sa.email
 }
+
+output "dns_name_servers" {
+  description = "The DNS Name Servers for the created Cloud DNS Zone. Copy these to your registrar if you configured domain_name."
+  value       = var.domain_name != "" ? google_dns_managed_zone.dns_zone[0].name_servers : null
+}
+
