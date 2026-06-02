@@ -36,7 +36,7 @@ variable "app_image" {
 variable "github_repository_path" {
   description = "The GitHub repository path (owner/repo) for the backend application."
   type        = string
-  default     = "jokarls/sweatapp-backend"
+  default     = "jokarls/sweatapp-be"
 }
 
 variable "workload_identity_pool_id" {
