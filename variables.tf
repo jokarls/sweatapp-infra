@@ -33,4 +33,16 @@ variable "app_image" {
   default     = "gcr.io/cloudrun/hello"
 }
 
+variable "github_repository_path" {
+  description = "The GitHub repository path (owner/repo) for the backend application."
+  type        = string
+  default     = "jokarls/sweatapp-backend"
+}
+
+variable "workload_identity_pool_id" {
+  description = "The ID of the existing Workload Identity Pool in GCP."
+  type        = string
+  default     = "github-pool"
+}
+
 

@@ -44,6 +44,7 @@ locals {
     "servicenetworking.googleapis.com", # Private Services Access (for Private IP Cloud SQL)
     "compute.googleapis.com",           # Compute Engine (required for networking)
     "iam.googleapis.com",               # IAM API
+    "artifactregistry.googleapis.com",  # Artifact Registry
   ]
 }
 

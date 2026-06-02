@@ -18,4 +18,15 @@ output "cloud_run_service_account_email" {
   value       = google_service_account.cloud_run_sa.email
 }
 
+output "backend_repository_url" {
+  description = "The URL of the GCP Artifact Registry repository for the backend."
+  value       = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.backend_repo.repository_id}"
+}
+
+output "backend_deploy_service_account_email" {
+  description = "The email of the new dedicated Service Account for backend deployment."
+  value       = google_service_account.backend_deploy_sa.email
+}
+
+
 
