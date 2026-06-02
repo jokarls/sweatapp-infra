@@ -36,3 +36,5 @@ resource "google_service_account_iam_member" "backend_sa_workload_identity" {
   role               = "roles/iam.workloadIdentityUser"
   member             = "principalSet://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${var.workload_identity_pool_id}/attribute.repository/${var.github_repository_path}"
 }
+
+

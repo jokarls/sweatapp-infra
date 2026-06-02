@@ -86,6 +86,12 @@ resource "google_cloud_run_v2_service" "backend_service" {
     type    = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"
     percent = 100
   }
+
+  lifecycle {
+    ignore_changes = [
+      template[0].containers[0].image,
+    ]
+  }
 }
 
 # Allow unauthenticated (public) access to the API endpoints so our mobile app and Strava webhooks can access it
@@ -96,3 +102,18 @@ resource "google_cloud_run_v2_service_iam_member" "allow_unauthenticated" {
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
+
+# Grant Cloud Run Developer permission to the dedicated backend deploy Service Account
+resource "google_project_iam_member" "backend_deploy_run_developer" {
+  project = var.project_id
+  role    = "roles/run.developer"
+  member  = "serviceAccount:${google_service_account.backend_deploy_sa.email}"
+}
+
+# Grant Service Account User (actAs) permission on the Cloud Run runtime Service Account
+resource "google_service_account_iam_member" "backend_deploy_act_as_run_sa" {
+  service_account_id = google_service_account.cloud_run_sa.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.backend_deploy_sa.email}"
+}
+
