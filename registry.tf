@@ -25,9 +25,14 @@ resource "google_artifact_registry_repository_iam_member" "backend_repo_writer" 
   member     = "serviceAccount:${google_service_account.backend_deploy_sa.email}"
 }
 
+# Fetch current GCP project data to retrieve the numerical Project Number
+data "google_project" "project" {
+  project_id = var.project_id
+}
+
 # Allow GitHub Actions via OIDC Workload Identity Federation to assume this dedicated Service Account
 resource "google_service_account_iam_member" "backend_sa_workload_identity" {
   service_account_id = google_service_account.backend_deploy_sa.name
   role               = "roles/iam.workloadIdentityUser"
-  member             = "principalSet://iam.googleapis.com/projects/${var.project_id}/locations/global/workloadIdentityPools/${var.workload_identity_pool_id}/attribute.repository/${var.github_repository_path}"
+  member             = "principalSet://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${var.workload_identity_pool_id}/attribute.repository/${var.github_repository_path}"
 }
