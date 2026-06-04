@@ -39,6 +39,10 @@ resource "google_cloud_run_v2_service" "backend_service" {
   template {
     service_account = google_service_account.cloud_run_sa.email
 
+    scaling {
+      min_instance_count = 1
+    }
+
     containers {
       image = var.app_image
 
@@ -65,6 +69,8 @@ resource "google_cloud_run_v2_service" "backend_service" {
       }
 
       resources {
+        cpu_idle = false
+        
         limits = {
           cpu    = "1"
           memory = "512Mi"
